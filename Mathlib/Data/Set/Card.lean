@@ -381,6 +381,25 @@ theorem exists_ne_of_one_lt_encard (h : 1 < s.encard) (a : α) : ∃ b ∈ s, b 
   apply hne
   rw [h' b hb, h' b' hb']
 
+theorem eq_insert_of_encard_eq_succ {n : ℕ} (h : s.encard = n + 1) :
+    ∃ a t, a ∉ t ∧ insert a t = s ∧ t.encard = n := by
+  classical
+  have hsf : s.Finite := by simp [← Set.encard_lt_top_iff, h]
+  rw [Finite.encard_eq_coe_toFinset_card hsf] at h
+  norm_cast at h
+  rw [Finset.card_eq_succ] at h
+  obtain ⟨a, t, hat, hts, rfl⟩ := h
+  simp only [Finset.ext_iff, Finset.mem_insert, Finite.mem_toFinset] at hts
+  refine ⟨a, t, hat, ?_, ?_⟩
+  · simp [Set.ext_iff, hts]
+  · simp
+
+theorem encard_eq_succ {n : ℕ} :
+    s.encard = n + 1 ↔ ∃ a t, a ∉ t ∧ insert a t = s ∧ t.encard = n := by
+  refine ⟨eq_insert_of_encard_eq_succ, ?_⟩
+  rintro ⟨a, t, hat, h, ht⟩
+  rw [← ht, ← h, encard_insert_of_notMem hat]
+
 set_option backward.isDefEq.respectTransparency false in
 theorem encard_eq_two : s.encard = 2 ↔ ∃ x y, x ≠ y ∧ s = {x, y} := by
   refine ⟨fun h ↦ ?_, fun ⟨x, y, hne, hs⟩ ↦ by rw [hs, encard_pair hne]⟩
